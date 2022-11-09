@@ -9,6 +9,10 @@ import (
 	"github.com/btcsuite/btcd/btcec/v2"
 )
 
+//
+// https://pkg.go.dev/github.com/decred/dcrd/dcrec/secp256k1/v4@v4.0.1/schnorr#section-readme
+//
+
 var Curve = btcec.S256()
 
 func GetBigIntBytesImmutable(i *big.Int) []byte {
@@ -23,6 +27,7 @@ func GetBigIntBytesImmutable(i *big.Int) []byte {
 	return dest
 }
 
+// s*G = R + e*Q
 func Sign(privatekey *big.Int, message [32]byte) ([64]byte, error) {
 	signature := [64]byte{}
 
@@ -31,7 +36,7 @@ func Sign(privatekey *big.Int, message [32]byte) ([64]byte, error) {
 		return signature, fmt.Errorf("private key must be an integer between 1 and %d", Curve.N)
 	}
 
-	// get the d value
+	// get the d as bytes, known as the private key in schnorr lingo
 	d := GetBigIntBytesImmutable(privatekey)
 
 	// get a random nounce value for the signature
@@ -203,6 +208,7 @@ func getK(Ry, k *big.Int) *big.Int {
 	return k.Sub(Curve.N, k)
 }
 
+// Calculate the challenge. e = hash(R || m)
 func getE(Px, Py *big.Int, rX []byte, m [32]byte) *big.Int {
 	r := append(rX, elliptic.MarshalCompressed(Curve, Px, Py)...)
 
