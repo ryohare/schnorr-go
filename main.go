@@ -1,13 +1,9 @@
 package main
 
 import (
-	"crypto/x509"
 	"encoding/hex"
-	"encoding/pem"
 	"flag"
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/decred/dcrd/crypto/blake256"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
@@ -23,26 +19,7 @@ func main() {
 	pubKeyPtr := flag.String("pubkey", "", "public key to verify the signature with")
 	privateKeyPtr := flag.String("privkey", "", "private key to sign the message with")
 	signaturePtr := flag.String("sig", "", "signature to verify")
-	pubKeyFilePtr := flag.String("pubkey-file", "", "file path to a public key file")
-	// privKeyFilePtr := flag.String("privkey-file", "", "file path to a public key file")
 	flag.Parse()
-
-	if *pubKeyFilePtr != "" {
-		// read in the pem file
-		pubkeyBytes, err := os.ReadFile(*pubKeyFilePtr)
-		if err != nil {
-			log.Fatalf("failed to read specified public key because %s\n", err.Error())
-		}
-		block, _ := pem.Decode(pubkeyBytes)
-		if block == nil || block.Type != "PUBLIC KEY" {
-			log.Fatal("failed to decode PEM block containing public key")
-		}
-		pubkeyAny, err := x509.ParsePKIXPublicKey(block.Bytes)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%T\n", pubkeyAny)
-	}
 
 	if *signPtr {
 
